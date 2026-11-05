@@ -51,6 +51,22 @@ export function jsonError(
   );
 }
 
+export class OrderConflictError extends Error {
+  public readonly statusCode = 409;
+  constructor(message: string = "Order conflict: stale version or concurrent edit") {
+    super(message);
+    this.name = "OrderConflictError";
+  }
+}
+
+export class AlreadyCancelledError extends Error {
+  public readonly statusCode = 409;
+  constructor(message: string = "Order is already cancelled") {
+    super(message);
+    this.name = "AlreadyCancelledError";
+  }
+}
+
 export function handleApiError(error: unknown) {
   console.error("[API Error Handler]:", error);
 
@@ -72,6 +88,12 @@ export function handleApiError(error: unknown) {
   }
 
   if (error instanceof Error) {
+    if (error.name === "OrderConflictError") {
+      return jsonError("ORDER_CONFLICT", error.message, 409);
+    }
+    if (error.name === "AlreadyCancelledError") {
+      return jsonError("ALREADY_CANCELLED", error.message, 409);
+    }
     if (error.name === "InsufficientStockError") {
       return jsonError("INSUFFICIENT_STOCK", error.message, 409);
     }

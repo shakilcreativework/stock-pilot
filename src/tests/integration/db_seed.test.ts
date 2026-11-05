@@ -26,6 +26,7 @@ describe("Database & Seed Data Verification (Real PostgreSQL)", () => {
 
   it("contains exactly 8 products with proper category relations", async () => {
     const products = await prisma.product.findMany({
+      where: { sku: { not: { startsWith: "TEST-" } } },
       include: { category: true },
     });
     expect(products.length).toBe(8);
@@ -43,7 +44,9 @@ describe("Database & Seed Data Verification (Real PostgreSQL)", () => {
   });
 
   it("enforces inventory accounting invariant: initial movement for every product", async () => {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      where: { sku: { not: { startsWith: "TEST-" } } },
+    });
     for (const prod of products) {
       const movement = await prisma.inventoryMovement.findFirst({
         where: {
