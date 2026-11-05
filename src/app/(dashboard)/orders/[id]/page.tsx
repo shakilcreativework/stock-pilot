@@ -330,41 +330,43 @@ export default function OrderDetailPage({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[550px]">
-            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-              <tr>
-                <th className="py-3 px-4">SKU</th>
-                <th className="py-3 px-4">Product Name</th>
-                <th className="py-3 px-4 text-center">Quantity</th>
-                <th className="py-3 px-4 text-right">Unit Price Snapshot</th>
-                <th className="py-3 px-4 text-right">Line Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {order.items.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/70">
-                  <td className="py-3 px-4 font-mono font-bold text-slate-900">
-                    {item.product.sku}
-                  </td>
-                  <td className="py-3 px-4 font-medium text-slate-900">{item.product.name}</td>
-                  <td className="py-3 px-4 text-center font-mono font-bold">
-                    {item.quantity}
-                  </td>
-                  <td className="py-3 px-4 text-right font-mono text-slate-600">
-                    {formatCurrency(item.unitPriceMinor)}
-                  </td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                    {formatCurrency(item.lineTotalMinor)}
-                  </td>
+            <table className="w-full text-left text-xs min-w-[650px]">
+              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-4 whitespace-nowrap w-32">SKU</th>
+                  <th className="py-3 px-4 min-w-[200px]">Product Name</th>
+                  <th className="py-3 px-4 text-center whitespace-nowrap w-24">Quantity</th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap w-36">Unit Price Snapshot</th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap w-32">Line Total</th>
                 </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {order.items.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/70">
+                      <td className="py-3 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
+                        {item.product.sku}
+                      </td>
+                        <td className="py-3 px-4 font-medium text-slate-900 min-w-[200px] leading-snug">
+                          {item.product.name}
+                        </td>
+                        <td className="py-3 px-4 text-center font-mono font-bold whitespace-nowrap">
+                          {item.quantity}
+                        </td>
+                          <td className="py-3 px-4 text-right font-mono text-slate-600 whitespace-nowrap">
+                            {formatCurrency(item.unitPriceMinor)}
+                          </td>
+                            <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                              {formatCurrency(item.lineTotalMinor)}
+                            </td>
+                          </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
 
-      {/* Movements Audit Trail for this Order */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* Movements Audit Trail for this Order */ }
+                  < div className = "bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" >
         <div className="p-4 sm:p-5 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-slate-500" />
@@ -378,15 +380,15 @@ export default function OrderDetailPage({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[650px]">
+          <table className="w-full text-left text-xs min-w-[700px]">
             <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
               <tr>
-                <th className="py-3 px-4">Timestamp</th>
-                <th className="py-3 px-4">Product</th>
-                <th className="py-3 px-4">Movement Type</th>
-                <th className="py-3 px-4 text-right">Delta</th>
-                <th className="py-3 px-4 text-right">Stock After</th>
-                <th className="py-3 px-4">Reason</th>
+                <th className="py-3 px-4 whitespace-nowrap w-28">Timestamp</th>
+                <th className="py-3 px-4 min-w-[200px]">Product</th>
+                <th className="py-3 px-4 whitespace-nowrap w-36">Movement Type</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap w-24">Delta</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap w-28">Stock After</th>
+                <th className="py-3 px-4 min-w-[180px]">Reason</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -400,30 +402,32 @@ export default function OrderDetailPage({
                 order.movements.map((m) => {
                   const isPositive = m.delta > 0;
                   return (
-                    <tr key={m.id}>
-                      <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                    <tr key={m.id} className="hover:bg-slate-50/70">
+                      <td className="py-3 px-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
                         {new Date(m.createdAt).toLocaleTimeString()}
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="font-semibold text-slate-900">{m.product.name}</span>{" "}
-                        <span className="text-[11px] font-mono text-slate-400">
+                      <td className="py-3 px-4 min-w-[200px]">
+                        <span className="font-semibold text-slate-900 leading-snug">{m.product.name}</span>{" "}
+                        <span className="text-[11px] font-mono text-slate-400 whitespace-nowrap">
                           ({m.product.sku})
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                           {m.type}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right font-mono font-bold">
+                      <td className="py-3 px-4 text-right font-mono font-bold whitespace-nowrap">
                         <span className={isPositive ? "text-emerald-600" : "text-rose-600"}>
                           {isPositive ? `+${m.delta}` : m.delta}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right font-mono text-slate-900 font-semibold">
+                      <td className="py-3 px-4 text-right font-mono text-slate-900 font-semibold whitespace-nowrap">
                         {m.quantityAfter}
                       </td>
-                      <td className="py-3 px-4 text-slate-600">{m.reason}</td>
+                      <td className="py-3 px-4 text-slate-600 min-w-[180px] leading-relaxed">
+                        {m.reason || "—"}
+                      </td>
                     </tr>
                   );
                 })

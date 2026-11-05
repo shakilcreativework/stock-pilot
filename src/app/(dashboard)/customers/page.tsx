@@ -169,17 +169,64 @@ export default function CustomersPage() {
         </button>
       </div>
 
-      {/* Customers Table */}
+      {/* Customers List Container */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[620px]">
+        {/* 1. Mobile Feed View (< sm: 320px - 639px): Zero Cramped Columns */}
+        <div className="block sm:hidden divide-y divide-slate-100">
+          {isLoading ? (
+            <div className="py-12 text-center text-slate-400">
+              <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
+              Loading customer records...
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="py-12 text-center text-slate-400">
+              <Users className="h-6 w-6 mx-auto mb-2 text-slate-300" />
+              No customer records found.
+            </div>
+          ) : (
+            customers.map((c) => (
+              <div key={c.id} className="p-4 space-y-2 hover:bg-slate-50/70 transition-colors">
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-slate-900 leading-snug">
+                      {c.name}
+                    </div>
+                    <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                      <Mail className="h-3 w-3 text-slate-400 shrink-0" />
+                      <span className="truncate">{c.email || "No email"}</span>
+                    </div>
+                  </div>
+
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 shrink-0 whitespace-nowrap">
+                    <ShoppingCart className="h-3 w-3 text-slate-400" />
+                    {c._count.orders} order(s)
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-50">
+                  <span className="font-mono text-slate-600 flex items-center gap-1">
+                    <Phone className="h-3 w-3 text-slate-400 shrink-0" />
+                    {c.phone || "—"}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    Joined: {new Date(c.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 2. Tablet & Desktop Table View (>= sm: 640px+): Fully Expanded Columns */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[700px]">
             <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
               <tr>
-                <th className="py-3 px-4">Customer Name</th>
-                <th className="py-3 px-4">Email Address</th>
-                <th className="py-3 px-4">Phone Number</th>
-                <th className="py-3 px-4 text-center">Orders Placed</th>
-                <th className="py-3 px-4 text-right">Created Date</th>
+                <th className="py-3 px-4 min-w-[180px] whitespace-nowrap">Customer Name</th>
+                <th className="py-3 px-4 min-w-[200px] whitespace-nowrap">Email Address</th>
+                <th className="py-3 px-4 whitespace-nowrap w-36">Phone Number</th>
+                <th className="py-3 px-4 text-center whitespace-nowrap w-32">Orders Placed</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap w-28">Created Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -200,32 +247,34 @@ export default function CustomersPage() {
               ) : (
                 customers.map((c) => (
                   <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-3 px-4 font-bold text-slate-900">{c.name}</td>
-                    <td className="py-3 px-4 text-slate-600">
+                    <td className="py-3 px-4 font-bold text-slate-900 min-w-[180px]">
+                      {c.name}
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 min-w-[200px]">
                       {c.email ? (
                         <span className="inline-flex items-center gap-1">
-                          <Mail className="h-3 w-3 text-slate-400" /> {c.email}
+                          <Mail className="h-3 w-3 text-slate-400 shrink-0" /> {c.email}
                         </span>
                       ) : (
                         "—"
                       )}
                     </td>
-                    <td className="py-3 px-4 text-slate-600">
+                    <td className="py-3 px-4 text-slate-600 whitespace-nowrap">
                       {c.phone ? (
                         <span className="inline-flex items-center gap-1 font-mono">
-                          <Phone className="h-3 w-3 text-slate-400" /> {c.phone}
+                          <Phone className="h-3 w-3 text-slate-400 shrink-0" /> {c.phone}
                         </span>
                       ) : (
                         "—"
                       )}
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-4 text-center whitespace-nowrap">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">
-                        <ShoppingCart className="h-3 w-3 text-slate-400" />
+                        <ShoppingCart className="h-3 w-3 text-slate-400 shrink-0" />
                         {c._count.orders} order(s)
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-right text-slate-400 font-mono text-[11px]">
+                    <td className="py-3 px-4 text-right text-slate-400 font-mono text-[11px] whitespace-nowrap">
                       {new Date(c.createdAt).toLocaleDateString()}
                     </td>
                   </tr>

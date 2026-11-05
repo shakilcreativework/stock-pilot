@@ -13,6 +13,7 @@ import {
   Eye,
   AlertTriangle,
   X,
+  ArrowRight,
 } from "lucide-react";
 
 interface Order {
@@ -142,106 +143,189 @@ export default function OrdersPage() {
       </div>
 
       {/* Orders Table */}
+      {/* Orders List Container */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[700px]">
-            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-              <tr>
-                <th className="py-3 px-4">Order #</th>
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">Date / Time</th>
-                <th className="py-3 px-4 text-center">Items</th>
-                <th className="py-3 px-4 text-right">Total Amount</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            {/* 1. Mobile Feed View (< sm: 320px - 639px): Zero Cramped Columns */}
+            <div className="block sm:hidden divide-y divide-slate-100">
               {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
-                    Loading orders...
-                  </td>
-                </tr>
+                <div className="py-12 text-center text-slate-400">
+                  <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
+                  Loading orders...
+                </div>
               ) : filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <ShoppingCart className="h-6 w-6 mx-auto mb-2 text-slate-300" />
-                    No orders found. Click "Create New Order" to start.
-                  </td>
-                </tr>
+                <div className="py-12 text-center text-slate-400">
+                  <ShoppingCart className="h-6 w-6 mx-auto mb-2 text-slate-300" />
+                  No orders found. Click "Create New Order" to start.
+                </div>
               ) : (
                 filteredOrders.map((o) => {
                   const isConfirmed = o.status === "CONFIRMED";
                   const totalItemsCount = o.items.reduce((sum, i) => sum + i.quantity, 0);
 
                   return (
-                    <tr key={o.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-slate-900">
-                        <Link
-                          href={`/orders/${o.id}`}
-                          className="hover:text-blue-600 hover:underline"
-                        >
-                          {o.orderNumber}
-                        </Link>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-900">{o.customer.name}</div>
-                        <div className="text-[11px] text-slate-400">
-                          {o.customer.email || "No email"}
+                    <div key={o.id} className="p-4 space-y-2.5 hover:bg-slate-50/70 transition-colors">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/orders/${o.id}`}
+                            className="text-xs font-mono font-bold text-blue-600 hover:underline inline-flex items-center gap-1"
+                          >
+                            {o.orderNumber}
+                          </Link>
+                          <div className="text-xs font-semibold text-slate-900 mt-0.5 truncate">
+                            {o.customer.name}
+                          </div>
+                          <div className="text-[11px] text-slate-400 truncate">
+                            {o.customer.email || "No email"}
+                          </div>
                         </div>
-                      </td>
-                      <td className="py-3 px-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
-                        {new Date(o.createdAt).toLocaleString([], {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}
-                      </td>
-                      <td className="py-3 px-4 text-center font-mono">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">
+
+                        <div className="text-right shrink-0">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[10px] whitespace-nowrap ${isConfirmed
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : "bg-rose-50 text-rose-700 border border-rose-200"
+                              }`}
+                          >
+                            {isConfirmed ? (
+                              <>
+                                <CheckCircle2 className="h-3 w-3" /> Confirmed
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="h-3 w-3" /> Cancelled
+                              </>
+                            )}
+                          </span>
+                          <div className="text-sm font-mono font-bold text-slate-900 mt-1">
+                            {formatCurrency(o.totalMinor)}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-50">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono font-medium">
                           {totalItemsCount} units ({o.items.length} lines)
                         </span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                        {formatCurrency(o.totalMinor)}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold text-[10px] ${isConfirmed
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-rose-50 text-rose-700 border border-rose-200"
-                            }`}
-                        >
-                          {isConfirmed ? (
-                            <>
-                              <CheckCircle2 className="h-3 w-3" /> Confirmed
-                            </>
-                          ) : (
-                            <>
-                              <XCircle className="h-3 w-3" /> Cancelled
-                            </>
-                          )}
+                        <span className="font-mono text-slate-400 text-[10px]">
+                          {new Date(o.createdAt).toLocaleString([], {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}
                         </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
                         <Link
                           href={`/orders/${o.id}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition-colors"
+                          className="inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 hover:text-blue-700 ml-auto"
                         >
-                          <Eye className="h-3 w-3" />
-                          View
+                          View <ArrowRight className="h-3 w-3" />
                         </Link>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   );
                 })
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+            </div>
+
+            {/* 2. Tablet & Desktop Table View (>= sm: 640px+): Fully Expanded Columns */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[780px]">
+                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-4 whitespace-nowrap w-36">Order #</th>
+                    <th className="py-3 px-4 min-w-[180px]">Customer</th>
+                    <th className="py-3 px-4 whitespace-nowrap w-32">Date / Time</th>
+                    <th className="py-3 px-4 text-center whitespace-nowrap w-28">Items</th>
+                    <th className="py-3 px-4 text-right whitespace-nowrap w-28">Total Amount</th>
+                    <th className="py-3 px-4 text-center whitespace-nowrap w-28">Status</th>
+                    <th className="py-3 px-4 text-right whitespace-nowrap w-20">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={7} className="py-12 text-center text-slate-400">
+                        <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
+                        Loading orders...
+                      </td>
+                    </tr>
+                  ) : filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-12 text-center text-slate-400">
+                        <ShoppingCart className="h-6 w-6 mx-auto mb-2 text-slate-300" />
+                        No orders found. Click "Create New Order" to start.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredOrders.map((o) => {
+                      const isConfirmed = o.status === "CONFIRMED";
+                      const totalItemsCount = o.items.reduce((sum, i) => sum + i.quantity, 0);
+
+                      return (
+                        <tr key={o.id} className="hover:bg-slate-50/70 transition-colors">
+                            <td className="py-3 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
+                              <Link
+                                href={`/orders/${o.id}`}
+                                className="hover:text-blue-600 hover:underline"
+                              >
+                                {o.orderNumber}
+                              </Link>
+                            </td>
+                                <td className="py-3 px-4 min-w-[180px]">
+                                  <div className="font-semibold text-slate-900 leading-snug">{o.customer.name}</div>
+                                  <div className="text-[11px] text-slate-400 truncate">
+                                    {o.customer.email || "No email"}
+                                  </div>
+                                </td>
+                                <td className="py-3 px-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
+                                  {new Date(o.createdAt).toLocaleString([], {
+                                    dateStyle: "short",
+                                    timeStyle: "short",
+                                  })}
+                                </td>
+                                  <td className="py-3 px-4 text-center font-mono whitespace-nowrap">
+                                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">
+                                      {totalItemsCount} units ({o.items.length} lines)
+                                    </span>
+                                  </td>
+                                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                                      {formatCurrency(o.totalMinor)}
+                                    </td>
+                                      <td className="py-3 px-4 text-center whitespace-nowrap">
+                                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold text-[10px] ${isConfirmed
+                                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                              : "bg-rose-50 text-rose-700 border border-rose-200"
+                          }`}
+                        >
+                                        {isConfirmed ? (
+                                          <>
+                                            <CheckCircle2 className="h-3 w-3" /> Confirmed
+                                          </>
+                                        ) : (
+                                          <>
+                                            <XCircle className="h-3 w-3" /> Cancelled
+                                          </>
+                                        )}
+                                      </span>
+                                    </td>
+                                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                                        <Link
+                                          href={`/orders/${o.id}`}
+                                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition-colors"
+                                        >
+                                          <Eye className="h-3 w-3" />
+                                          View
+                                        </Link>
+                                      </td>
+                                    </tr>
+                                    );
+                })
+              )}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                          );
 }
 

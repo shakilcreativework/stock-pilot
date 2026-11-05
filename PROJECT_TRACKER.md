@@ -174,4 +174,9 @@
   - Minimal and professional footers for both public and authenticated shells.
   - Dedicated production Settings page (`/settings`) showing session profile, invariants, demo credentials, and framework versions.
   - Mobile-first Tailwind CSS v4 breakpoints across all pages (320px–1920px), wrapping all tables in `overflow-x-auto` with `min-w-[...]` and fixing dialog grids.
+  - **Mobile Text-Wrapping & Dual-View Responsive Architecture Fix (Phone Viewports < 640px e.g. iPhone 16 / 393px)**:
+    - Fixed root cause of table column collapse where wide text columns (e.g. `Product`) were squeezed into ~80px width, causing product names and badges to break word-by-word into single-word lines.
+    - Implemented **Dual-View Architecture**: On mobile (`block sm:hidden`), replaced cramped multi-column tables with native mobile card feeds displaying bold product title, SKU, timestamps, signed delta badges, balance counts, and actor pills.
+    - On tablet and desktop (`hidden sm:block`), expanded tables with explicit minimum column widths (`min-w-[850px]` for Movements, `min-w-[780px]` for Orders, `min-w-[750px]` for Products, `min-w-[700px]` for Customers) and `whitespace-nowrap` on all headers, badges, prices, and timestamps.
+    - Added `whitespace-nowrap` and `shrink-0` to header actions, low-stock warning chips, and card links (`Full Ledger ->`).
   - 49/49 tests passing across 12 test suites, 0 TypeScript errors, 22 routes compiled cleanly.

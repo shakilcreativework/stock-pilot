@@ -265,222 +265,290 @@ export default function InventoryPage() {
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[720px]">
-            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-              <tr>
-                <th className="py-3 px-4">Date / Time</th>
-                <th className="py-3 px-4">Product</th>
-                <th className="py-3 px-4">Type</th>
-                <th className="py-3 px-4 text-right">Signed Delta</th>
-                <th className="py-3 px-4 text-right">Balance After</th>
-                <th className="py-3 px-4">Actor</th>
-                <th className="py-3 px-4">Audit Reason</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            {/* Mobile Feed View (< sm: 320px - 639px) */}
+            <div className="block sm:hidden divide-y divide-slate-100">
               {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="py-10 text-center text-slate-400">
-                    <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
-                    Loading movements ledger...
-                  </td>
-                </tr>
+                <div className="py-10 text-center text-slate-400 text-xs">
+                  <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
+                  Loading movements ledger...
+                </div>
               ) : movements.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-10 text-center text-slate-400">
-                    No movements recorded yet.
-                  </td>
-                </tr>
+                <div className="py-10 text-center text-slate-400 text-xs">
+                  No movements recorded yet.
+                </div>
               ) : (
                 movements.map((m) => {
                   const isPositive = m.delta > 0;
                   return (
-                    <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
-                        {new Date(m.createdAt).toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-900">{m.product.name}</div>
-                        <div className="text-[11px] text-slate-500 font-mono">{m.product.sku}</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                          {m.type}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono font-bold">
+                    <div key={m.id} className="p-3.5 space-y-2 hover:bg-slate-50/70 transition-colors">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-bold text-slate-900 leading-snug">
+                            {m.product.name}
+                          </div>
+                          <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                            {m.product.sku}
+                          </div>
+                        </div>
                         <span
-                          className={`inline-flex items-center gap-0.5 ${isPositive ? "text-emerald-600" : "text-rose-600"
+                          className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-xs font-bold font-mono shrink-0 whitespace-nowrap ${isPositive
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-rose-50 text-rose-700 border border-rose-200"
                             }`}
                         >
-                          {isPositive ? (
-                            <TrendingUp className="h-3 w-3 inline" />
-                          ) : (
-                            <TrendingDown className="h-3 w-3 inline" />
-                          )}
+                          {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {isPositive ? `+${m.delta}` : m.delta}
                         </span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono font-semibold text-slate-900">
-                        {m.quantityAfter}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-slate-900">{m.actor.name}</div>
-                        <div className="text-[10px] text-slate-400">{m.actor.role}</div>
-                      </td>
-                      <td className="py-3 px-4 text-slate-600 max-w-sm">
-                        {m.reason || "—"}
-                      </td>
-                    </tr>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-50 gap-2">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                          {m.type}
+                        </span>
+                        <span className="font-mono text-slate-700">
+                          Balance: <strong className="text-slate-900 font-bold">{m.quantityAfter}</strong>
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono ml-auto">
+                          {new Date(m.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] text-slate-500 flex items-center justify-between gap-2">
+                        <span className="text-slate-600 truncate">
+                          By: <span className="font-medium text-slate-800">{m.actor.name}</span> ({m.actor.role})
+                        </span>
+                        {m.reason && (
+                          <span className="text-[10px] text-slate-400 truncate max-w-[150px]" title={m.reason}>
+                            {m.reason}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   );
                 })
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Adjust Stock Modal (Admin Only) */}
-      {isAdjustModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Adjust Product Stock</h3>
-                <p className="text-xs text-slate-500">
-                  Executes conditional atomic database update with verified balance invariants.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsAdjustModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                <X className="h-5 w-5" />
-              </button>
             </div>
 
-            <form onSubmit={handleAdjustStock} className="p-4 sm:p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase">
-                  Select Product
-                </label>
-                <select
-                  value={selectedProductId}
-                  onChange={(e) => setSelectedProductId(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 font-medium"
-                >
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.sku}) — Available: {p.stockOnHand}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-                  Adjustment Type
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setAdjustmentMode("ADD")}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition-colors ${adjustmentMode === "ADD"
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                      }`}
-                  >
-                    <TrendingUp className="h-4 w-4" />
-                    Receive / Add (+ Stock)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAdjustmentMode("DEDUCT")}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition-colors ${adjustmentMode === "DEDUCT"
-                      ? "bg-rose-50 text-rose-700 border-rose-300 shadow-2xs"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                      }`}
-                  >
-                    <TrendingDown className="h-4 w-4" />
-                    Discard / Deduct (- Stock)
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase">
-                  Units Quantity
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  value={adjustQuantity}
-                  onChange={(e) => setAdjustQuantity(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 font-mono font-bold focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Dynamic Balance Projection */}
-              {currentProduct && (
-                <div
-                  className={`p-3 rounded-lg border text-xs flex items-center justify-between ${projectedBalance < 0
-                    ? "bg-rose-50 border-rose-300 text-rose-700"
-                    : "bg-blue-50 border-blue-200 text-blue-900"
-                    }`}
-                >
-                  <div>
-                    <span className="font-semibold">Projected Balance: </span>
-                    <span className="font-mono">{currentProduct.stockOnHand}</span>
-                    <span className="font-mono">
-                      {" "}
-                      {computedDelta >= 0 ? `+ ${computedDelta}` : `- ${Math.abs(computedDelta)}`} ={" "}
-                    </span>
-                    <span className="font-mono font-bold text-sm">{projectedBalance} units</span>
-                  </div>
-                  {projectedBalance < 0 && (
-                    <span className="text-[11px] font-bold text-rose-600">
-                      Illegal: Negative Stock!
-                    </span>
-                  )}
-                </div>
+            {/* Tablet & Desktop Table View (>= sm: 640px+) */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[850px]">
+                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-4 whitespace-nowrap w-36">Date / Time</th>
+                    <th className="py-3 px-4 min-w-[220px]">Product</th>
+                    <th className="py-3 px-4 whitespace-nowrap w-36">Type</th>
+                    <th className="py-3 px-4 text-right whitespace-nowrap w-28">Signed Delta</th>
+                    <th className="py-3 px-4 text-right whitespace-nowrap w-28">Balance After</th>
+                    <th className="py-3 px-4 whitespace-nowrap min-w-[130px]">Actor</th>
+                    <th className="py-3 px-4 min-w-[200px]">Audit Reason</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={7} className="py-10 text-center text-slate-400">
+                        <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
+                        Loading movements ledger...
+                      </td>
+                    </tr>
+                  ) : movements.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-10 text-center text-slate-400">
+                        No movements recorded yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    movements.map((m) => {
+                      const isPositive = m.delta > 0;
+                      return (
+                        <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
+                          <td className="py-3 px-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
+                            {new Date(m.createdAt).toLocaleString()}
+                          </td>
+                            <td className="py-3 px-4 min-w-[220px]">
+                              <div className="font-semibold text-slate-900 leading-snug">{m.product.name}</div>
+                              <div className="text-[11px] text-slate-500 font-mono mt-0.5 whitespace-nowrap">{m.product.sku}</div>
+                            </td>
+                              <td className="py-3 px-4 whitespace-nowrap">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                  {m.type}
+                                </span>
+                              </td>
+                                <td className="py-3 px-4 text-right font-mono font-bold whitespace-nowrap">
+                                  <span
+                                    className={`inline-flex items-center gap-0.5 ${isPositive ? "text-emerald-600" : "text-rose-600"
+                                      }`}
+                                  >
+                                    {isPositive ? (
+                                      <TrendingUp className="h-3 w-3 inline" />
+                                    ) : (
+                                      <TrendingDown className="h-3 w-3 inline" />
+                                    )}
+                                    {isPositive ? `+${m.delta}` : m.delta}
+                                  </span>
+                                </td>
+                                  <td className="py-3 px-4 text-right font-mono font-semibold text-slate-900 whitespace-nowrap">
+                                    {m.quantityAfter}
+                                  </td>
+                                    <td className="py-3 px-4 whitespace-nowrap">
+                                      <div className="font-medium text-slate-900 leading-tight">{m.actor.name}</div>
+                                      <div className="text-[10px] text-slate-400 leading-tight">{m.actor.role}</div>
+                                    </td>
+                                      <td className="py-3 px-4 text-slate-600 min-w-[200px] max-w-sm whitespace-normal leading-relaxed">
+                                        {m.reason || "—"}
+                                      </td>
+                                    </tr>
+                                    );
+                })
               )}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase">
-                  Audit Reason (Required)
-                </label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="e.g. Stock count recount, damaged goods return, warehouse transfer..."
-                  value={adjustReason}
-                  onChange={(e) => setAdjustReason(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                            {/* Adjust Stock Modal (Admin Only) */}
+                            {isAdjustModalOpen && (
+                              <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+                                <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+                                  <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                                    <div>
+                                      <h3 className="text-base font-bold text-slate-900">Adjust Product Stock</h3>
+                                      <p className="text-xs text-slate-500">
+                                        Executes conditional atomic database update with verified balance invariants.
+                                      </p>
+                                    </div>
+                                    <button
+                                      onClick={() => setIsAdjustModalOpen(false)}
+                                      className="text-slate-400 hover:text-slate-600 p-1"
+                                    >
+                                      <X className="h-5 w-5" />
+                                    </button>
+                                  </div>
 
-              <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsAdjustModalOpen(false)}
-                  className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || projectedBalance < 0}
-                  className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm disabled:opacity-50"
-                >
-                  {isSubmitting ? "Applying Adjustment..." : "Confirm Stock Adjustment"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+                                  <form onSubmit={handleAdjustStock} className="p-4 sm:p-6 space-y-4">
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 uppercase">
+                                        Select Product
+                                      </label>
+                                      <select
+                                        value={selectedProductId}
+                                        onChange={(e) => setSelectedProductId(e.target.value)}
+                                        className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 font-medium"
+                                      >
+                                        {products.map((p) => (
+                                          <option key={p.id} value={p.id}>
+                                            {p.name} ({p.sku}) — Available: {p.stockOnHand}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </div>
+
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                                        Adjustment Type
+                                      </label>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                                        <button
+                                          type="button"
+                                          onClick={() => setAdjustmentMode("ADD")}
+                                          className={`py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition-colors ${adjustmentMode === "ADD"
+                                            ? "bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs"
+                                            : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                                            }`}
+                                        >
+                                          <TrendingUp className="h-4 w-4" />
+                                          Receive / Add (+ Stock)
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => setAdjustmentMode("DEDUCT")}
+                                          className={`py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 transition-colors ${adjustmentMode === "DEDUCT"
+                                            ? "bg-rose-50 text-rose-700 border-rose-300 shadow-2xs"
+                                            : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                                            }`}
+                                        >
+                                          <TrendingDown className="h-4 w-4" />
+                                          Discard / Deduct (- Stock)
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 uppercase">
+                                        Units Quantity
+                                      </label>
+                                      <input
+                                        type="number"
+                                        min="1"
+                                        required
+                                        value={adjustQuantity}
+                                        onChange={(e) => setAdjustQuantity(e.target.value)}
+                                        className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 font-mono font-bold focus:ring-2 focus:ring-blue-500"
+                                      />
+                                    </div>
+
+                                    {/* Dynamic Balance Projection */}
+                                    {currentProduct && (
+                                      <div
+                                        className={`p-3 rounded-lg border text-xs flex items-center justify-between ${projectedBalance < 0
+                                          ? "bg-rose-50 border-rose-300 text-rose-700"
+                                          : "bg-blue-50 border-blue-200 text-blue-900"
+                                          }`}
+                                      >
+                                        <div>
+                                          <span className="font-semibold">Projected Balance: </span>
+                                          <span className="font-mono">{currentProduct.stockOnHand}</span>
+                                          <span className="font-mono">
+                                            {" "}
+                                            {computedDelta >= 0 ? `+ ${computedDelta}` : `- ${Math.abs(computedDelta)}`} ={" "}
+                                          </span>
+                                          <span className="font-mono font-bold text-sm">{projectedBalance} units</span>
+                                        </div>
+                                        {projectedBalance < 0 && (
+                                          <span className="text-[11px] font-bold text-rose-600">
+                                            Illegal: Negative Stock!
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 uppercase">
+                                        Audit Reason (Required)
+                                      </label>
+                                      <textarea
+                                        rows={2}
+                                        required
+                                        placeholder="e.g. Stock count recount, damaged goods return, warehouse transfer..."
+                                        value={adjustReason}
+                                        onChange={(e) => setAdjustReason(e.target.value)}
+                                        className="mt-1 w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500"
+                                      />
+                                    </div>
+
+                                    <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 border-t border-slate-100">
+                                      <button
+                                        type="button"
+                                        onClick={() => setIsAdjustModalOpen(false)}
+                                        className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg"
+                                      >
+                                        Cancel
+                                      </button>
+                                      <button
+                                        type="submit"
+                                        disabled={isSubmitting || projectedBalance < 0}
+                                        className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm disabled:opacity-50"
+                                      >
+                                        {isSubmitting ? "Applying Adjustment..." : "Confirm Stock Adjustment"}
+                                      </button>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          );
 }
