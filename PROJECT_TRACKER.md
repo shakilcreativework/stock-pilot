@@ -49,5 +49,6 @@
   - Vitest test suite verified (`npm run test` passed 4/4 tests).
   - Next.js production build verified (`npm run build` passed with 0 errors).
   - Strictly local git repository initialized with complete `.gitignore`. Zero remote pushes.
+  - Resolved browser extension attribute mismatch on `<body>` (`cz-shortcut-listen` injected by ColorZilla) via targeted `suppressHydrationWarning` on root layout elements.
 
 
