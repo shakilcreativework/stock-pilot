@@ -12,8 +12,8 @@
 |---|---|---|---|
 | **Phase 0** | Architecture, Scaffolding, Strict TS, Tailwind v4, Test Setup | ✅ Completed | 100% |
 | **Phase 1** | Database (Prisma + PostgreSQL), Seed Data, Better Auth & RBAC | ✅ Completed | 100% |
-| **Phase 2** | Products & Inventory Management (Atomic Movement Invariants) | 🔄 Ready to Start | 0% |
-| **Phase 3** | Transactional Order Lifecycle (Create/Edit/Cancel, Concurrency) | ⏳ Pending | 0% |
+| **Phase 2** | Products & Inventory Management (Atomic Movement Invariants) | ✅ Completed | 100% |
+| **Phase 3** | Transactional Order Lifecycle (Create/Edit/Cancel, Concurrency) | 🔄 Ready to Start | 0% |
 | **Phase 4** | Audit Trail, Dashboard KPIs, UX States & Accessibility | ⏳ Pending | 0% |
 | **Phase 5** | Quality Assurance, E2E, Docker, Production Verification | ⏳ Pending | 0% |
 
@@ -42,6 +42,18 @@
 - [x] Build interactive `/login` page with 1-click live demo account selectors
 - [x] Verify real PostgreSQL integration tests (`20/20` passing tests across 5 test suites)
 
+### Phase 2: Products & Inventory Management
+- [x] Zod validation schemas for products (`createProductSchema`, `updateProductSchema`) and stock adjustments (`stockAdjustmentSchema`)
+- [x] Product Service (`listProducts`, `getProductById`, `createProduct`, `updateProduct`) with non-cascading relations and SKU uniqueness checks
+- [x] Inventory Service (`adjustProductStock`, `listInventoryMovements`) enforcing conditional atomic SQL updates (`stockOnHand >= quantity`), signed deltas, and audit records
+- [x] Product APIs (`GET/POST /api/products`, `GET/PATCH /api/products/[id]`, `GET /api/categories`)
+- [x] Inventory APIs (`POST /api/inventory/adjustments`, `GET /api/inventory/movements`)
+- [x] Responsive Dashboard shell (`Sidebar`, `Header`) with role display and sign-out
+- [x] Dashboard KPI overview page (`/dashboard`) with real-time stock counts and low-stock alerts
+- [x] Products catalog page (`/products`) with live search, category filtering, status filtering, and Admin creation modal
+- [x] Inventory ledger page (`/inventory`) with live stock balances, audit movements table, and Admin stock adjustment modal
+- [x] Integration tests for products and stock adjustment invariants (`29/29` passing tests across 7 test suites)
+
 ---
 
 ## 3. Core Architecture Decisions (ADRs)
@@ -51,18 +63,19 @@
 - **ADR-03: Concurrency & Invariants**: Raw conditional SQL within Prisma transactions (`stockOnHand >= quantity`) for stock deduction. Version-checked optimistic locking for order updates to prevent overselling and duplicate cancellations.
 - **ADR-04: RBAC**: Server-side permission middleware and service-level guards. Frontend hiding is UI sugar only; API endpoints return 401/403 strictly.
 - **ADR-05: Database & Driver**: Prisma 7 with `@prisma/adapter-pg` connection pool connected to local PostgreSQL (`localhost:5432/stockpilot_db`). All passwords hashed with Node's crypto `scrypt` and 16-byte cryptographically secure salts.
+- **ADR-06: Atomic Stock Invariant Execution**: Stock adjustments execute conditional SQL updates directly inside database transactions (`UPDATE "Product" SET "stockOnHand" = "stockOnHand" + $delta WHERE "id" = $productId AND "stockOnHand" >= $absDelta`). If 0 rows are affected, transaction rolls back immediately with 409 `INSUFFICIENT_STOCK`.
 
 ---
 
 ## 4. Current Work Log
 
 - **2026-11-05 (Phase 0)**: Scaffolding complete with Next.js 16.4.5, React 19.1.0, Tailwind CSS 4.0.9, strict TypeScript, Vitest. Resolved browser extension body attribute hydration mismatch via `suppressHydrationWarning`.
-- **2026-11-05 (Phase 1)**: Database & Authentication complete:
-  - Local PostgreSQL `stockpilot_db` connected via `.env`.
-  - Prisma schema with strict relational integrity, check constraints, and non-cascading delete protections for audit trail.
-  - Applied migration `20261105081804_init`.
-  - Executed deterministic seed: Admin (`admin@stockpilot.io` / `Admin123!`), Staff (`staff@stockpilot.io` / `Staff123!`), 8 products, 3 customers, initial inventory movements.
-  - Implemented server RBAC, session cookie engine, Auth APIs, and `/login` page.
-  - All 20/20 tests passing in Vitest, production build verified. Zero remote git pushes.
+- **2026-11-05 (Phase 1)**: Database & Authentication complete (PostgreSQL `stockpilot_db`, Prisma 7 migration, deterministic seed, RBAC, `/login` page).
+- **2026-11-05 (Phase 2)**: Products & Inventory complete:
+  - Product CRUD with SKU uniqueness and exclusion of direct stock tampering in product edit.
+  - Inventory adjustment service with conditional atomic SQL updates, signed deltas, and audit logging.
+  - Operational Dashboard layout with Navigation Sidebar and Header.
+  - Interactive `/dashboard`, `/products`, and `/inventory` pages.
+  - Full suite of 29/29 tests passed, production build verified. Zero remote git pushes.
 
 

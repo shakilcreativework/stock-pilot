@@ -72,6 +72,15 @@ export function handleApiError(error: unknown) {
   }
 
   if (error instanceof Error) {
+    if (error.name === "InsufficientStockError") {
+      return jsonError("INSUFFICIENT_STOCK", error.message, 409);
+    }
+    if (error.name === "ProductNotFoundError" || error.name === "NotFoundError") {
+      return jsonError("NOT_FOUND", error.message, 404);
+    }
+    if (error.name === "DuplicateSkuError") {
+      return jsonError("VALIDATION_ERROR", error.message, 409);
+    }
     return jsonError("INTERNAL_ERROR", error.message, 500);
   }
 
