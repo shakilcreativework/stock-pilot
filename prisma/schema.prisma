@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum OrderStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+enum MovementType {
+  INITIAL
+  ADJUSTMENT
+  ORDER_CREATED
+  ORDER_EDITED
+  ORDER_CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(STAFF)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions     Session[]
+  orders       Order[]             @relation("UserOrders")
+  movements    InventoryMovement[] @relation("UserMovements")
+  auditLogs    AuditLog[]          @relation("UserAuditLogs")
+
+  @@index([email])
+  @@index([role])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products  Product[]
+
+  @@index([name])
+}
+
+model Product {
+  id                 String              @id @default(cuid())
+  sku                String              @unique
+  name               String
+  description        String?
+  categoryId         String
+  priceMinor         Int                 // Minor currency unit (cents, e.g. 1999 = $19.99)
+  stockOnHand        Int                 @default(0) // Must remain >= 0
+  lowStockThreshold  Int                 @default(5)
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  category           Category            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  orderItems         OrderItem[]
+  movements          InventoryMovement[]
+
+  @@index([sku])
+  @@index([name])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+
+  @@index([name])
+  @@index([email])
+}
+
+model Order {
+  id          String              @id @default(cuid())
+  orderNumber String              @unique
+  customerId  String
+  status      OrderStatus         @default(CONFIRMED)
+  totalMinor  Int                 // Sum of line items in minor units
+  version     Int                 @default(1) // Optimistic locking
+  createdById String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  cancelledAt DateTime?
+
+  customer    Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  createdBy   User                @relation("UserOrders", fields: [createdById], references: [id], onDelete: Restrict)
+  items       OrderItem[]
+  movements   InventoryMovement[]
+
+  @@index([orderNumber])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id             String   @id @default(cuid())
+  orderId        String
+  productId      String
+  quantity       Int      // Positive integer (> 0)
+  unitPriceMinor Int      // Historical price snapshot at order time
+  lineTotalMinor Int      // quantity * unitPriceMinor
+
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, productId])
+  @@index([orderId])
+  @@index([productId])
+}
+
+model InventoryMovement {
+  id            String       @id @default(cuid())
+  productId     String
+  orderId       String?
+  actorId       String
+  type          MovementType
+  delta         Int          // Signed integer (+/- units changed)
+  quantityAfter Int          // Absolute stock on hand balance after delta applied
+  reason        String?
+  createdAt     DateTime     @default(now())
+
+  product       Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  order         Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  actor         User         @relation("UserMovements", fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@index([orderId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String   // e.g. "PRODUCT_CREATE", "ORDER_CANCEL", "STOCK_ADJUST"
+  entityType String   // e.g. "Product", "Order", "InventoryMovement"
+  entityId   String
+  beforeJson String?  // Sanitized JSON snapshot before mutation
+  afterJson  String?  // Sanitized JSON snapshot after mutation
+  createdAt  DateTime @default(now())
+
+  actor      User     @relation("UserAuditLogs", fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model IdempotencyRecord {
+  id                String   @id @default(cuid())
+  scope             String   // e.g. "CREATE_ORDER"
+  key               String   // Client-provided unique UUID/token
+  requestHash       String   // SHA-256 hash of payload to detect payload mismatch
+  responseReference String?  // Stores JSON string of created order response
+  status            String   // "PENDING", "COMPLETED", "FAILED"
+  createdAt         DateTime @default(now())
+
+  @@unique([scope, key])
+  @@index([createdAt])
+}
