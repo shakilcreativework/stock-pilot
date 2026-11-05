@@ -13,9 +13,9 @@
 | **Phase 0** | Architecture, Scaffolding, Strict TS, Tailwind v4, Test Setup | ✅ Completed | 100% |
 | **Phase 1** | Database (Prisma + PostgreSQL), Seed Data, Better Auth & RBAC | ✅ Completed | 100% |
 | **Phase 2** | Products & Inventory Management (Atomic Movement Invariants) | ✅ Completed | 100% |
-| **Phase 3** | Transactional Order Lifecycle (Create/Edit/Cancel, Concurrency) | 🔄 In Progress | 25% |
-| **Phase 4** | Audit Trail, Dashboard KPIs, UX States & Accessibility | ⏳ Pending | 0% |
-| **Phase 5** | Quality Assurance, E2E, Docker, Production Verification | ⏳ Pending | 0% |
+| **Phase 3** | Transactional Order Lifecycle (Create/Edit/Cancel, Concurrency) | ✅ Completed | 100% |
+| **Phase 4** | Audit Trail, Dashboard KPIs, UX States & Accessibility | ✅ Completed | 100% |
+| **Phase 5** | Quality Assurance, E2E, Docker, Production Verification | 🔄 Ready to Start | 0% |
 
 ---
 
@@ -54,6 +54,26 @@
 - [x] Inventory ledger page (`/inventory`) with live stock balances, audit movements table, and Admin stock adjustment modal
 - [x] Integration tests for products and stock adjustment invariants (`29/29` passing tests across 7 test suites)
 
+### Phase 3: Transactional Order Lifecycle
+- [x] Zod validation schemas for orders (`createOrderSchema`, `updateOrderSchema`) and line item normalization (`normalizeOrderItems`)
+- [x] Deadlock-free product lock/sort ordering by `productId` ascending
+- [x] Multi-product order creation service (`createOrder`) with atomic conditional SQL deductions and idempotency record caching
+- [x] Order editing service (`updateOrder`) with optimistic concurrency control (`version` token checks) and net delta calculations (`newQty - oldQty`)
+- [x] Order cancellation service (`cancelOrder`) with idempotent protection against duplicate inventory restoration
+- [x] Order APIs (`POST /api/orders`, `GET /api/orders`, `GET /api/orders/[id]`, `PATCH /api/orders/[id]`, `POST /api/orders/[id]/cancel`, `GET /api/customers`)
+- [x] Orders list page (`/orders`) with status badges and filters
+- [x] Transactional order builder page (`/orders/new`) with live stock availability and idempotency tokens
+- [x] Order details page (`/orders/[id]`) with price snapshots, edit quantities modal, and cancellation dialog
+- [x] Concurrency and order lifecycle tests (`38/38` passing tests across 9 test suites)
+
+### Phase 4: Audit Trail, Customer Directory & UX Polish
+- [x] Audit log service (`listAuditLogs`) and Admin-only API (`GET /api/audit-logs`) returning HTTP 403 for Staff
+- [x] Interactive `/audit-logs` page with expandable JSON before/after state diff visualizer
+- [x] Customer management service and API (`GET/POST /api/customers`) with order history count statistics
+- [x] Customer directory page (`/customers`) with search and "Add Customer" modal
+- [x] Accessible toast notifications via Sonner configured in root layout
+- [x] Full integration tests for audit trail and customer APIs (`42/42` passing tests across 11 test suites)
+
 ---
 
 ## 3. Core Architecture Decisions (ADRs)
@@ -64,6 +84,8 @@
 - **ADR-04: RBAC**: Server-side permission middleware and service-level guards. Frontend hiding is UI sugar only; API endpoints return 401/403 strictly.
 - **ADR-05: Database & Driver**: Prisma 7 with `@prisma/adapter-pg` connection pool connected to local PostgreSQL (`localhost:5432/stockpilot_db`). All passwords hashed with Node's crypto `scrypt` and 16-byte cryptographically secure salts.
 - **ADR-06: Atomic Stock Invariant Execution**: Stock adjustments execute conditional SQL updates directly inside database transactions (`UPDATE "Product" SET "stockOnHand" = "stockOnHand" + $delta WHERE "id" = $productId AND "stockOnHand" >= $absDelta`). If 0 rows are affected, transaction rolls back immediately with 409 `INSUFFICIENT_STOCK`.
+- **ADR-07: Optimistic Concurrency & Idempotent Order Lifecycle**: Multi-line orders normalize lines and acquire product rows in ascending `productId` sort order to eliminate deadlock risks. Idempotency records are persisted atomically with order creation. Order edits check and increment a numerical `version` token inside transaction, rejecting stale writes with 409 `ORDER_CONFLICT`. Order cancellation atomically checks `status = CONFIRMED`, restoring inventory quantities exactly once and rejecting repeated requests with 409 `ALREADY_CANCELLED`.
+- **ADR-08: Complete Immutable Audit Trail**: All mutations (Product Creation/Update, Stock Adjustment, Order Creation/Edit/Cancellation, Customer Creation) commit audit records in the same database transaction, capturing actor ID, timestamp, and sanitized before/after serialized JSON state.
 
 ---
 
@@ -71,11 +93,12 @@
 
 - **2026-11-05 (Phase 0)**: Scaffolding complete with Next.js 16.4.5, React 19.1.0, Tailwind CSS 4.0.9, strict TypeScript, Vitest. Resolved browser extension body attribute hydration mismatch via `suppressHydrationWarning`.
 - **2026-11-05 (Phase 1)**: Database & Authentication complete (PostgreSQL `stockpilot_db`, Prisma 7 migration, deterministic seed, RBAC, `/login` page).
-- **2026-11-05 (Phase 2)**: Products & Inventory complete:
-  - Product CRUD with SKU uniqueness and exclusion of direct stock tampering in product edit.
-  - Inventory adjustment service with conditional atomic SQL updates, signed deltas, and audit logging.
-  - Operational Dashboard layout with Navigation Sidebar and Header.
-  - Interactive `/dashboard`, `/products`, and `/inventory` pages.
-  - Full suite of 29/29 tests passed, production build verified. Zero remote git pushes.
+- **2026-11-05 (Phase 2)**: Products & Inventory complete (Product CRUD, atomic adjustments, dashboard layout, live ledger).
+- **2026-11-05 (Phase 3)**: Transactional Order Lifecycle complete (Multi-product orders, concurrency race test, optimistic version locking, single-restoration cancellation).
+- **2026-11-05 (Phase 4)**: Audit Trail, Customer Directory & UX Polish complete:
+  - Admin-only `/audit-logs` page with expandable JSON state diff visualizer.
+  - Customer directory page (`/customers`) with search and modal.
+  - Toast notification system with Sonner.
+  - Full suite of 42/42 tests passing across 11 test suites. Production build verified (21 routes). Zero remote git pushes.
 
 
