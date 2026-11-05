@@ -196,7 +196,7 @@ export default function OrderDetailPage({
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Top Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <Link
           href="/orders"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
@@ -205,7 +205,7 @@ export default function OrderDetailPage({
         </Link>
 
         {isConfirmed && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => setIsEditModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors"
@@ -258,8 +258,8 @@ export default function OrderDetailPage({
             </h1>
             <span
               className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold ${isConfirmed
-                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  : "bg-rose-50 text-rose-700 border border-rose-200"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-rose-50 text-rose-700 border border-rose-200"
                 }`}
             >
               {isConfirmed ? (
@@ -320,7 +320,7 @@ export default function OrderDetailPage({
 
       {/* Line Items Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-5 border-b border-slate-200">
+        <div className="p-4 sm:p-5 border-b border-slate-200">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">
             Order Line Items
           </h2>
@@ -329,41 +329,43 @@ export default function OrderDetailPage({
           </p>
         </div>
 
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-            <tr>
-              <th className="py-3 px-4">SKU</th>
-              <th className="py-3 px-4">Product Name</th>
-              <th className="py-3 px-4 text-center">Quantity</th>
-              <th className="py-3 px-4 text-right">Unit Price Snapshot</th>
-              <th className="py-3 px-4 text-right">Line Total</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-slate-700">
-            {order.items.map((item) => (
-              <tr key={item.id} className="hover:bg-slate-50/70">
-                <td className="py-3 px-4 font-mono font-bold text-slate-900">
-                  {item.product.sku}
-                </td>
-                <td className="py-3 px-4 font-medium text-slate-900">{item.product.name}</td>
-                <td className="py-3 px-4 text-center font-mono font-bold">
-                  {item.quantity}
-                </td>
-                <td className="py-3 px-4 text-right font-mono text-slate-600">
-                  {formatCurrency(item.unitPriceMinor)}
-                </td>
-                <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                  {formatCurrency(item.lineTotalMinor)}
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[550px]">
+            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+              <tr>
+                <th className="py-3 px-4">SKU</th>
+                <th className="py-3 px-4">Product Name</th>
+                <th className="py-3 px-4 text-center">Quantity</th>
+                <th className="py-3 px-4 text-right">Unit Price Snapshot</th>
+                <th className="py-3 px-4 text-right">Line Total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {order.items.map((item) => (
+                <tr key={item.id} className="hover:bg-slate-50/70">
+                  <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                    {item.product.sku}
+                  </td>
+                  <td className="py-3 px-4 font-medium text-slate-900">{item.product.name}</td>
+                  <td className="py-3 px-4 text-center font-mono font-bold">
+                    {item.quantity}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-slate-600">
+                    {formatCurrency(item.unitPriceMinor)}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                    {formatCurrency(item.lineTotalMinor)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Movements Audit Trail for this Order */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-5 border-b border-slate-200">
+        <div className="p-4 sm:p-5 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-slate-500" />
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">
@@ -375,65 +377,67 @@ export default function OrderDetailPage({
           </p>
         </div>
 
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-            <tr>
-              <th className="py-3 px-4">Timestamp</th>
-              <th className="py-3 px-4">Product</th>
-              <th className="py-3 px-4">Movement Type</th>
-              <th className="py-3 px-4 text-right">Delta</th>
-              <th className="py-3 px-4 text-right">Stock After</th>
-              <th className="py-3 px-4">Reason</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-slate-700">
-            {order.movements.length === 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[650px]">
+            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
               <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-400">
-                  No movements recorded.
-                </td>
+                <th className="py-3 px-4">Timestamp</th>
+                <th className="py-3 px-4">Product</th>
+                <th className="py-3 px-4">Movement Type</th>
+                <th className="py-3 px-4 text-right">Delta</th>
+                <th className="py-3 px-4 text-right">Stock After</th>
+                <th className="py-3 px-4">Reason</th>
               </tr>
-            ) : (
-              order.movements.map((m) => {
-                const isPositive = m.delta > 0;
-                return (
-                  <tr key={m.id}>
-                    <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
-                      {new Date(m.createdAt).toLocaleTimeString()}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="font-semibold text-slate-900">{m.product.name}</span>{" "}
-                      <span className="text-[11px] font-mono text-slate-400">
-                        ({m.product.sku})
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
-                        {m.type}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold">
-                      <span className={isPositive ? "text-emerald-600" : "text-rose-600"}>
-                        {isPositive ? `+${m.delta}` : m.delta}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-right font-mono text-slate-900 font-semibold">
-                      {m.quantityAfter}
-                    </td>
-                    <td className="py-3 px-4 text-slate-600">{m.reason}</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {order.movements.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-400">
+                    No movements recorded.
+                  </td>
+                </tr>
+              ) : (
+                order.movements.map((m) => {
+                  const isPositive = m.delta > 0;
+                  return (
+                    <tr key={m.id}>
+                      <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                        {new Date(m.createdAt).toLocaleTimeString()}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-semibold text-slate-900">{m.product.name}</span>{" "}
+                        <span className="text-[11px] font-mono text-slate-400">
+                          ({m.product.sku})
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
+                          {m.type}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-bold">
+                        <span className={isPositive ? "text-emerald-600" : "text-rose-600"}>
+                          {isPositive ? `+${m.delta}` : m.delta}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-slate-900 font-semibold">
+                        {m.quantityAfter}
+                      </td>
+                      <td className="py-3 px-4 text-slate-600">{m.reason}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Edit Quantities Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
               <div>
                 <h3 className="text-base font-bold text-slate-900">
                   Edit Order Quantities ({order.orderNumber})
@@ -445,13 +449,13 @@ export default function OrderDetailPage({
               </div>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 p-1"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateQuantities} className="p-6 space-y-4">
+            <form onSubmit={handleUpdateQuantities} className="p-4 sm:p-6 space-y-4">
               <div className="space-y-3">
                 {order.items.map((item) => {
                   const currentQty = editQuantities[item.productId] ?? item.quantity;
@@ -459,9 +463,9 @@ export default function OrderDetailPage({
                   return (
                     <div
                       key={item.id}
-                      className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between gap-3"
+                      className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                     >
-                      <div className="flex-1">
+                      <div className="flex-1 w-full sm:w-auto">
                         <div className="text-xs font-semibold text-slate-900">
                           {item.product.name}
                         </div>
@@ -470,57 +474,59 @@ export default function OrderDetailPage({
                         </div>
                       </div>
 
-                      <div className="w-24">
-                        <label className="block text-[10px] font-semibold text-slate-500 uppercase">
-                          New Qty
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          required
-                          value={currentQty}
-                          onChange={(e) =>
-                            setEditQuantities({
-                              ...editQuantities,
-                              [item.productId]: Math.max(1, parseInt(e.target.value, 10) || 1),
-                            })
-                          }
-                          className="mt-0.5 w-full px-2 py-1 text-xs rounded border border-slate-300 bg-white font-mono font-bold"
-                        />
-                      </div>
+                      <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
+                        <div className="w-24">
+                          <label className="block text-[10px] font-semibold text-slate-500 uppercase">
+                            New Qty
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            required
+                            value={currentQty}
+                            onChange={(e) =>
+                              setEditQuantities({
+                                ...editQuantities,
+                                [item.productId]: Math.max(1, parseInt(e.target.value, 10) || 1),
+                              })
+                            }
+                            className="mt-0.5 w-full px-2 py-1 text-xs rounded border border-slate-300 bg-white font-mono font-bold"
+                          />
+                        </div>
 
-                      <div className="w-20 text-right">
-                        <span className="block text-[10px] font-semibold text-slate-500 uppercase">
-                          Delta
-                        </span>
-                        <span
-                          className={`font-mono text-xs font-bold ${delta > 0
+                        <div className="w-20 text-right">
+                          <span className="block text-[10px] font-semibold text-slate-500 uppercase">
+                            Delta
+                          </span>
+                          <span
+                            className={`font-mono text-xs font-bold ${delta > 0
                               ? "text-rose-600"
                               : delta < 0
                                 ? "text-emerald-600"
                                 : "text-slate-400"
-                            }`}
-                        >
-                          {delta > 0 ? `+${delta}` : delta < 0 ? delta : "0"}
-                        </span>
+                              }`}
+                          >
+                            {delta > 0 ? `+${delta}` : delta < 0 ? delta : "0"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+              <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg"
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingEdit}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm disabled:opacity-50"
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm disabled:opacity-50"
                 >
                   {isSubmittingEdit ? "Applying Delta..." : "Confirm & Update"}
                 </button>
@@ -532,9 +538,9 @@ export default function OrderDetailPage({
 
       {/* Cancel Order Confirmation Modal */}
       {isCancelConfirmOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-6 space-y-3">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 sm:p-6 space-y-3">
               <div className="h-10 w-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center">
                 <AlertTriangle className="h-5 w-5" />
               </div>
@@ -548,11 +554,11 @@ export default function OrderDetailPage({
               </p>
             </div>
 
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setIsCancelConfirmOpen(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200/60 rounded-lg"
+                className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200/60 rounded-lg"
               >
                 Go Back
               </button>
@@ -560,7 +566,7 @@ export default function OrderDetailPage({
                 type="button"
                 disabled={isSubmittingCancel}
                 onClick={handleCancelOrder}
-                className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-lg shadow-sm disabled:opacity-50"
+                className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-lg shadow-sm disabled:opacity-50"
               >
                 {isSubmittingCancel ? "Cancelling & Restoring..." : "Confirm Cancellation"}
               </button>

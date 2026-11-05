@@ -252,8 +252,8 @@ export default function NewOrderPage() {
                 <div
                   key={idx}
                   className={`p-3.5 rounded-lg border flex flex-col md:flex-row items-start md:items-center gap-3 transition-colors ${isOverStock
-                      ? "bg-rose-50/70 border-rose-300"
-                      : "bg-slate-50/70 border-slate-200"
+                    ? "bg-rose-50/70 border-rose-300"
+                    : "bg-slate-50/70 border-slate-200"
                     }`}
                 >
                   <div className="flex-1 w-full md:w-auto">
@@ -274,41 +274,43 @@ export default function NewOrderPage() {
                     </select>
                   </div>
 
-                  <div className="w-28">
-                    <label className="block text-[10px] font-semibold text-slate-500 uppercase">
-                      Quantity
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      required
-                      value={line.quantity}
-                      onChange={(e) =>
-                        handleLineQtyChange(idx, parseInt(e.target.value, 10) || 1)
-                      }
-                      className="mt-1 w-full px-2.5 py-1.5 text-xs rounded-md border border-slate-300 bg-white font-mono font-bold"
-                    />
-                  </div>
+                  <div className="flex items-center justify-between sm:justify-start gap-3 w-full md:w-auto">
+                    <div className="w-24 sm:w-28">
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase">
+                        Quantity
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        required
+                        value={line.quantity}
+                        onChange={(e) =>
+                          handleLineQtyChange(idx, parseInt(e.target.value, 10) || 1)
+                        }
+                        className="mt-1 w-full px-2.5 py-1.5 text-xs rounded-md border border-slate-300 bg-white font-mono font-bold"
+                      />
+                    </div>
 
-                  <div className="w-32 text-right">
-                    <span className="block text-[10px] font-semibold text-slate-500 uppercase">
-                      Line Total
-                    </span>
-                    <span className="mt-1 block font-mono font-bold text-xs text-slate-900">
-                      {formatCurrency(lineTotal)}
-                    </span>
-                  </div>
+                    <div className="w-24 sm:w-28 text-right sm:text-left md:text-right">
+                      <span className="block text-[10px] font-semibold text-slate-500 uppercase">
+                        Line Total
+                      </span>
+                      <span className="mt-1.5 block font-mono font-bold text-xs text-slate-900 truncate">
+                        {formatCurrency(lineTotal)}
+                      </span>
+                    </div>
 
-                  <div className="pt-4 md:pt-3">
-                    <button
-                      type="button"
-                      disabled={lines.length === 1}
-                      onClick={() => handleRemoveLine(idx)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 disabled:opacity-30 rounded transition-colors"
-                      title="Remove Line"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="pt-3">
+                      <button
+                        type="button"
+                        disabled={lines.length === 1}
+                        onClick={() => handleRemoveLine(idx)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 disabled:opacity-30 rounded transition-colors"
+                        title="Remove Line"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

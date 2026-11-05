@@ -48,7 +48,7 @@ export default function AuditLogsPage() {
           setUserRole(res.data.user.role);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const loadLogs = useCallback(async () => {
@@ -139,8 +139,8 @@ export default function AuditLogsPage() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-80">
+      <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div className="relative w-full sm:w-72 lg:w-80">
           <Search className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
           <input
             type="text"
@@ -151,11 +151,11 @@ export default function AuditLogsPage() {
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <select
             value={entityFilter}
             onChange={(e) => setEntityFilter(e.target.value)}
-            className="text-xs py-2 px-3 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+            className="text-xs py-2 px-3 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium flex-1 sm:flex-none"
           >
             <option value="">All Entities</option>
             <option value="Product">Product</option>
@@ -194,7 +194,7 @@ export default function AuditLogsPage() {
               try {
                 if (log.beforeJson) parsedBefore = JSON.parse(log.beforeJson);
                 if (log.afterJson) parsedAfter = JSON.parse(log.afterJson);
-              } catch {}
+              } catch { }
 
               return (
                 <div key={log.id} className="hover:bg-slate-50/60 transition-colors">

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Shield, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { Shield, Lock, Mail, ArrowRight, ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,8 +47,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors p-1"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Home</span>
+          </Link>
+        </div>
+
         <div className="flex justify-center">
           <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 font-bold text-xl">
             SP
@@ -62,7 +73,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-slate-800/90 backdrop-blur-sm py-8 px-4 shadow-xl border border-slate-700/60 sm:rounded-2xl sm:px-10">
+        <div className="bg-slate-800/90 backdrop-blur-sm py-6 sm:py-8 px-4 sm:px-8 shadow-xl border border-slate-700/60 rounded-2xl">
           {errorMessage && (
             <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center gap-2 text-red-400 text-sm">
               <AlertCircle className="h-4 w-4 shrink-0" />
@@ -118,7 +129,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center gap-2 py-2.5 px-4 rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+              className="w-full flex justify-center items-center gap-2 py-2.5 px-4 rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors cursor-pointer"
             >
               {isLoading ? "Authenticating..." : "Sign In"}
               <ArrowRight className="h-4 w-4" />
@@ -134,29 +145,29 @@ export default function LoginPage() {
               <span className="text-[11px] text-blue-400 font-medium">Click to populate</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => fillDemoAccount("admin@stockpilot.io", "Admin123!")}
-                className="p-3 text-left rounded-lg bg-slate-900/60 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-900 transition-all group"
+                className="p-3 text-left rounded-lg bg-slate-900/60 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-900 transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-blue-400">
-                  <Shield className="h-3.5 w-3.5 text-blue-400" />
-                  Admin Account
+                  <Shield className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                  <span>Admin Account</span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5 truncate">admin@stockpilot.io</div>
+                <div className="text-[11px] text-slate-400 mt-0.5 truncate font-mono">admin@stockpilot.io</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => fillDemoAccount("staff@stockpilot.io", "Staff123!")}
-                className="p-3 text-left rounded-lg bg-slate-900/60 border border-slate-700 hover:border-indigo-500/50 hover:bg-slate-900 transition-all group"
+                className="p-3 text-left rounded-lg bg-slate-900/60 border border-slate-700 hover:border-indigo-500/50 hover:bg-slate-900 transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-indigo-400">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400" />
-                  Staff Account
+                  <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                  <span>Staff Account</span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5 truncate">staff@stockpilot.io</div>
+                <div className="text-[11px] text-slate-400 mt-0.5 truncate font-mono">staff@stockpilot.io</div>
               </button>
             </div>
           </div>

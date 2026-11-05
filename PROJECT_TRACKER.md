@@ -16,6 +16,7 @@
 | **Phase 3** | Transactional Order Lifecycle (Create/Edit/Cancel, Concurrency) | ✅ Completed | 100% |
 | **Phase 4** | Audit Trail, Dashboard KPIs, UX States & Accessibility | ✅ Completed | 100% |
 | **Phase 5** | Quality Assurance, E2E Demo Flow, Docker, Production Verification | ✅ Completed | 100% |
+| **Phase 6** | Complete Responsive UI/UX, Header, Mobile Navigation & Polish | ✅ Completed | 100% |
 
 ---
 
@@ -84,23 +85,61 @@
 - [x] Author publication-grade `README.md` complete with architecture diagrams, technical deep-dive, quickstart instructions, seed accounts table, rehearsed live demo script, and assessment traceability matrix
 - [x] Full test suite passing against real PostgreSQL (`49/49` tests passing across 12 test suites)
 - [x] Strict TypeScript check verified (`tsc --noEmit`, 0 errors)
-- [x] Production build verified (21 routes compiled cleanly)
+- [x] Production build verified (22 routes compiled cleanly)
+
+### Phase 6: Responsive UI/UX, Header, Navigation & Accessibility
+- [x] Universal Responsive Header (`AppHeader` in `src/components/layout/app-header.tsx`):
+  - Brand Logo with SP icon, StockPilot title, and Operations Hub subtitle.
+  - Desktop Navigation links to Home (`/`), Dashboard (`/dashboard`), Products (`/products`), Inventory (`/inventory`), Orders (`/orders`), Customers (`/customers`), Audit Logs (`/audit-logs`, Admin-only), and Settings (`/settings`).
+  - Active route highlighting using Next.js `usePathname()`.
+  - Authenticated User Profile Menu with initials avatar, full name, email, role badge (`ADMIN` / `STAFF`), and Sign Out action.
+  - Unauthenticated Sign In action and Launch Demo shortcut.
+- [x] Accessible Mobile Navigation Drawer (`MobileNav`):
+  - Accessible toggle button with `aria-expanded` and `aria-controls`.
+  - Backdrop overlay with blur.
+  - Escape key handling and outside click listener.
+  - Body scroll lock (`document.body.style.overflow = "hidden"`).
+  - Navigation links with auto-close on selection.
+  - Complete user session card and Sign Out action.
+- [x] Professional Footer Component (`Footer` in `src/components/layout/footer.tsx`):
+  - Public comprehensive mode for homepage with working navigation links, tech stack details, and copyright.
+  - Compact dashboard mode for authenticated shell with invariant status.
+- [x] Revamped Homepage (`src/app/page.tsx`):
+  - Eliminated dead-end status: replaced static text with working CTAs ("Open Operations Dashboard", "Browse Products", "Sign In").
+  - Removed "Phase 0 Operational" development label.
+  - Responsive hero section, architectural feature cards, and 3-minute demo flow callout.
+- [x] Real Production Settings Route (`src/app/(dashboard)/settings/page.tsx`):
+  - Authenticated session profile (Name, Email, Role, ID).
+  - Core database invariants & concurrency guard status (Atomic SQL updates, OCC version token, single-restoration cancellation).
+  - Assessment demo accounts reference.
+  - Runtime environment details (Next.js 16.4.5, React 19.1.0, Tailwind CSS v4, PostgreSQL 17/18, Prisma 7).
+- [x] Mobile-First Tailwind CSS v4 Breakpoints across all pages:
+  - Supported: Mobile base (320px), `sm:` (640px), `md:` (768px), `lg:` (1024px), `xl:` (1280px), `2xl:` (1536px).
+  - Hidden sidebar on mobile screens (`hidden lg:flex`) to eliminate squished content.
+  - Responsive padding (`p-3 sm:p-4 md:p-6 lg:p-8`).
+  - Horizontal overflow protection with `overflow-x-auto` and `min-w-[...]` on all tables (Products, Inventory Movements, Orders, Customers).
+  - Responsive modal dialogs (`max-h-[90vh] overflow-y-auto`, `grid-cols-1 sm:grid-cols-2` or `sm:grid-cols-3`).
+- [x] Verification:
+  - `npm run typecheck`: 0 errors.
+  - `npm run test`: 49/49 tests passing across 12 test suites.
+  - `npm run build`: 22 routes compiled cleanly.
 
 ---
 
 ## 3. Definition of Done (Assessment PRD Section 17)
 
-- [x] **Working responsive products, inventory, and orders UI**: Dashboard, Products, Inventory, Orders, Customers, and Audit Logs pages fully functional.
+- [x] **Working responsive products, inventory, and orders UI**: Dashboard, Products, Inventory, Orders, Customers, Settings, and Audit Logs pages fully functional.
 - [x] **Admin and Staff authentication**: Database sessions via HttpOnly cookies, timing-safe scrypt password verification, and 1-click login UI.
 - [x] **Backend/API authorization enforced and tested**: Server-side RBAC guards throwing HTTP 403 for Staff attempting forbidden mutations or viewing audit logs.
 - [x] **Atomic create/edit/cancel inventory behavior**: All inventory adjustments execute inside transactions with signed movements and audit logs.
 - [x] **Overselling and stale updates prevented under concurrency**: Conditional SQL updates (`stockOnHand >= quantity`), ascending product lock sorting, and OCC `version` tokens.
 - [x] **Validation, useful errors, and audit trail**: Strict Zod schemas, structured JSON error codes, and immutable before/after diffs.
 - [x] **Unit, integration, concurrency, and E2E critical-path tests**: 49 tests passing across 12 test suites in Vitest.
-- [x] **Production build succeeds without known hydration/CSS defects**: `output: "standalone"` build succeeds with 21 compiled routes.
+- [x] **Production build succeeds without known hydration/CSS defects**: `output: "standalone"` build succeeds with 22 compiled routes.
 - [x] **Docker Compose startup, migrations, and seed verified**: Multi-stage `Dockerfile` and `compose.yaml` with health checks and entrypoint.
 - [x] **Complete README with commands, design decisions, and demo accounts**: Comprehensive guide with step-by-step instructions.
 - [x] **Three-minute live demo rehearsed**: Documented script with timestamps, talking points, and automated test coverage.
+- [x] **Responsive navigation, mobile drawer, and professional header**: Accessible across 320px–1920px screen resolutions.
 
 ---
 
@@ -115,6 +154,7 @@
 - **ADR-07: Optimistic Concurrency & Idempotent Order Lifecycle**: Multi-line orders normalize lines and acquire product rows in ascending `productId` sort order to eliminate deadlock risks. Idempotency records are persisted atomically with order creation. Order edits check and increment a numerical `version` token inside transaction, rejecting stale writes with 409 `ORDER_CONFLICT`. Order cancellation atomically checks `status = CONFIRMED`, restoring inventory quantities exactly once and rejecting repeated requests with 409 `ALREADY_CANCELLED`.
 - **ADR-08: Complete Immutable Audit Trail**: All mutations (Product Creation/Update, Stock Adjustment, Order Creation/Edit/Cancellation, Customer Creation) commit audit records in the same database transaction, capturing actor ID, timestamp, and sanitized before/after serialized JSON state.
 - **ADR-09: Standalone Production Containerization**: Multi-stage Docker image packaging Next.js standalone output with Alpine Node.js 22, non-root user permissions, automated Prisma migration deployment, and healthcheck orchestration via Docker Compose.
+- **ADR-10: Responsive Navigation & Sheet Drawer Architecture**: Responsive universal header (`AppHeader`) dynamically switching between desktop horizontal navigation and slide-over mobile drawer (`MobileNav`). Viewport scroll locking, Escape-key dismiss, and focus retention implemented natively without bloated external sheet libraries.
 
 ---
 
@@ -125,11 +165,13 @@
 - **2026-11-05 (Phase 2)**: Products & Inventory complete (Product CRUD, atomic adjustments, dashboard layout, live ledger).
 - **2026-11-05 (Phase 3)**: Transactional Order Lifecycle complete (Multi-product orders, concurrency race test, optimistic version locking, single-restoration cancellation).
 - **2026-11-05 (Phase 4)**: Audit Trail, Customer Directory & UX Polish complete (Admin-only `/audit-logs` with diffs, `/customers` directory, Sonner toasts).
-- **2026-11-05 (Phase 5)**: Quality Assurance, Docker & Assessment Reproducibility complete:
-  - Configured Next.js `output: "standalone"` in `next.config.ts`.
-  - Created multi-stage `Dockerfile` and `compose.yaml` with PostgreSQL 17 health check.
-  - Implemented `docker-entrypoint.sh` for auto-migration and auto-seed.
-  - Added GitHub Actions CI pipeline in `.github/workflows/ci.yml`.
-  - Implemented automated 3-Minute Live Demo Flow test suite (`src/tests/integration/demo_flow.test.ts`).
-  - Authored comprehensive `README.md` with complete documentation, diagrams, demo script, and rubric traceability.
-  - **All 49 tests passing across 12 test suites**. Strict typecheck verified (0 errors). Production build clean (21 routes). Ready for interview presentation!
+- **2026-11-05 (Phase 5)**: Quality Assurance, Docker & Assessment Reproducibility complete (`output: "standalone"`, multi-stage `Dockerfile`, `compose.yaml`, `demo_flow.test.ts`, publication `README.md`, 49/49 tests passing).
+- **2026-11-05 (Phase 6)**: Complete Responsive UI/UX, Header, Routes & Navigation Implementation:
+  - Universal responsive header with active link highlighting (`usePathname()`).
+  - Mobile slide-over navigation drawer with Escape key support, backdrop blur, and body scroll locking.
+  - User profile menu on desktop and mobile with initials avatar, role badge, and sign out.
+  - Revamped homepage with working CTAs, architectural pillars, and demo flow callout.
+  - Minimal and professional footers for both public and authenticated shells.
+  - Dedicated production Settings page (`/settings`) showing session profile, invariants, demo credentials, and framework versions.
+  - Mobile-first Tailwind CSS v4 breakpoints across all pages (320px–1920px), wrapping all tables in `overflow-x-auto` with `min-w-[...]` and fixing dialog grids.
+  - 49/49 tests passing across 12 test suites, 0 TypeScript errors, 22 routes compiled cleanly.
