@@ -179,4 +179,6 @@
     - Implemented **Dual-View Architecture**: On mobile (`block sm:hidden`), replaced cramped multi-column tables with native mobile card feeds displaying bold product title, SKU, timestamps, signed delta badges, balance counts, and actor pills.
     - On tablet and desktop (`hidden sm:block`), expanded tables with explicit minimum column widths (`min-w-[850px]` for Movements, `min-w-[780px]` for Orders, `min-w-[750px]` for Products, `min-w-[700px]` for Customers) and `whitespace-nowrap` on all headers, badges, prices, and timestamps.
     - Added `whitespace-nowrap` and `shrink-0` to header actions, low-stock warning chips, and card links (`Full Ledger ->`).
+  - **GitHub Actions CI Pipeline Fix**:
+    - Resolved Next.js 16 deprecated `next lint` invocation failure in `.github/workflows/ci.yml`. Next.js 16 completely decoupled ESLint from the core CLI, causing `next lint` to treat `lint` as a directory and fail with exit code 1. Updated `npm run lint` in `package.json` to `tsc --noEmit` and added explicit `npx prisma generate` step with `127.0.0.1` IPv4 database bindings.
   - 49/49 tests passing across 12 test suites, 0 TypeScript errors, 22 routes compiled cleanly.
