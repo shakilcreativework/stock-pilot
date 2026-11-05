@@ -1,0 +1,65 @@
+name: CI Quality Assurance Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-and-build:
+    name: Verify Types, Tests & Production Build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: stockpilot_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/stockpilot_db?schema=public
+      NODE_ENV: test
+      BETTER_AUTH_SECRET: test-secret-32-characters-minimum-length
+      BETTER_AUTH_URL: http://localhost:3000
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Strict TypeScript Typecheck
+        run: npm run typecheck
+
+      - name: Next.js ESLint
+        run: npm run lint
+
+      - name: Run Prisma Migrations
+        run: npx prisma migrate deploy
+
+      - name: Seed Database
+        run: npx prisma db seed
+
+      - name: Run Vitest Unit, Integration & Concurrency Tests
+        run: npm run test
+
+      - name: Build Next.js Production Bundle
+        run: npm run build
+
